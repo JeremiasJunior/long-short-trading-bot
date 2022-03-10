@@ -1,5 +1,5 @@
 '''
-period: periodo da média movel
+period: periodo da média
 
 
 
@@ -158,10 +158,7 @@ class bkt_godhand():
         i_list = []
 
         count = 0 # contador de periodos - inicia 
-        
-        canTrade = True
 
-        trade_day = df_index[0].day
 
         for df_iteration in range(len(df_index)): # da pra melhorar isso aqui
 
@@ -173,6 +170,7 @@ class bkt_godhand():
             
             
             
+            canTrade = True
 
             symbol_x['df_iteration'] = df_iteration
             symbol_y['df_iteration'] = df_iteration
@@ -191,9 +189,7 @@ class bkt_godhand():
             self.godhandlog['price']['x_price'].append(current_x_price)
             self.godhandlog['price']['time'].append(date)
 
-
-            if(trade_day < df_index[df_iteration].day):
-                canTrade = True
+            
 
             returns = 0
             if len(self.godhandlog['price']['time']) >= period:
@@ -257,8 +253,6 @@ class bkt_godhand():
 
                         position_open = True
                         count = 0 # zera contagem quando abre short-spread '5279b846,19c1188e'
-                        canTrade=False
-                        trade_day = df_index[df_iteration].day
         
                     
                     ### LONG SPREAD
@@ -283,9 +277,6 @@ class bkt_godhand():
 
                         position_open = True
                         count = 0 # zera contagem quando abre long-spread
-                        canTrade=False
-                        trade_day = df_index[df_iteration].day
-
 
 
                     ### CLOSE POSITION
@@ -335,19 +326,8 @@ class bkt_godhand():
                                 self.godhandlog['expo'].append(current_expo)
                                 self.godhandlog['returns'].append(returns)
                                 count = 0 # zera contagem quando fecha posição 
-                                
-                                
-                                if((len(self.godhandlog['returns']) >= stop_number)) or force_close == True:
-                                #if(True):
-                                    net_profit = 0
-                                    for pos in self.godhandlog['positions_list']:
-                                        net_profit += pos['profit']
-                                        self.godhandlog['profit'] = net_profit
-                                    
-                                    
-                                    self.godhandlog['info']['returns'] = self.godhandlog['returns']
-                                    #self.godhandlog['info']['days'] = (dataframe_date[i+1] - dataframe_date[i+1]).days
-                                    return self.godhandlog 
+                                return self.godhandlog 
+                            
 
                         elif(self.godhandlog['positions'][position_key]['type'] == 'short_spread'):
                         
@@ -384,20 +364,7 @@ class bkt_godhand():
                                 self.godhandlog['expo'].append(current_expo)
                                 self.godhandlog['returns'].append(returns)
                                 count = 0 # zera contagem quando fecha posição
-
-                                if((len(self.godhandlog['returns']) >= stop_number)) or force_close == True:   
-                                #if(True):
-                                    net_profit = 0
-                                    for pos in self.godhandlog['positions_list']:
-                                        net_profit += pos['profit']
-                                        self.godhandlog['profit'] = net_profit
-                                    
-
-                                    
-                                    
-                                    self.godhandlog['info']['returns'] = self.godhandlog['returns']
-                                    #self.godhandlog['info']['days'] = (dataframe_date[i+1] - dataframe_date[).days
-                                    return self.godhandlog 
+                                return self.godhandlog 
                         
                         count += 1
                         
@@ -652,12 +619,12 @@ class bkt_godhand():
             _lucro_x = (df_xprice - curr_xprice)*x_volume
             _lucro_y = (curr_yprice - df_yprice)*y_volume
             _lucro = _lucro_x + _lucro_y
-            #expo = df_yprice*y_volume + df_xprice*x_volume
-            #percentage = _lucro/expo
+            expo = df_yprice*y_volume + df_xprice*x_volume
+            percentage = _lucro/expo
 
-            if(_lucro >= 100):
+            if(percentage >= tp and percentage != 0):
                 return True
-            if(_lucro <= -75):
+            if(percentage <= sl and percentage != 0):
                 return True
             
             return False
@@ -667,12 +634,12 @@ class bkt_godhand():
             _lucro_x = (-df_xprice + curr_xprice)*x_volume
             _lucro_y = (-curr_yprice + df_yprice)*y_volume
             _lucro = _lucro_x + _lucro_y
-            #expo = df_yprice*y_volume + df_xprice*x_volume
-            #percentage = _lucro/expo
+            expo = df_yprice*y_volume + df_xprice*x_volume
+            percentage = _lucro/expo
 
-            if(_lucro >= 100):
+            if(percentage >= tp and percentage != 0):
                 return True
-            if(_lucro <= -75):
+            if(percentage <= sl and percentage != 0):
                 return True
             
             return False

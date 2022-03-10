@@ -83,7 +83,7 @@ class fourteenbis_live():
                        stop_return,
                        min_count,
                        timeframe=5,
-                       connected_server='tcp://192.168.100.105:10000'
+                       connected_server='tcp://192.168.100.106:10000'
                        ):
                        
         f_name = '{}x{}_{}.json'.format(independent_ticker, dependent_ticker, token(4))
@@ -305,7 +305,6 @@ class fourteenbis_live():
                                                                                         x_volume,
                                                                                         'open'
                                                                                         )
-            #openpositions.append('{},{}'.format(str(x_ticket), str(y_ticket)))
             print({'key':'Buy : {}\n Sell: {}'.format(str(x_ticket), str(y_ticket)), 
                 'x_volume':x_volume,
                 'y_volume':y_volume,

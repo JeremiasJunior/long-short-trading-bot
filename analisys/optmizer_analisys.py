@@ -5,7 +5,7 @@ import os
 import datetime
 
 import backend.bkt as bkt
-from analisys.bkt_analisys import runbkt
+from analisys.bkt_analisys import runbkt, runbkt_d1
 
 from statsmodels.tsa.stattools import coint
 
@@ -52,7 +52,7 @@ class forestbkt:
 
             #fname = '{}x{}x{}{}{}.json'.format(name_x, name_y, datetime.datetime.now().hour, datetime.datetime.now().minute, datetime.datetime.now().second)
 
-            dic = runbkt(symbol_x, symbol_y, name_x, name_y, _period,s_spread, l_spread, tp_s, tp_l, stop_n, c_min, pos_size, t=treino)
+            dic = runbkt_d1(symbol_x, symbol_y, name_x, name_y, _period,s_spread, l_spread, tp_s, tp_l, stop_n, c_min, pos_size, t=treino)
             if(opt_param == 'profit'):
                 return dic['profit']
             if(opt_param == 'std_returns'):

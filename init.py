@@ -1,7 +1,7 @@
 import os
 import sys
 
-os.chdir('/home/tars/Documents/Github/14bis_2.0/')
+os.chdir('/home/tars/Documents/Github/14Bis')
 
 #colocar imports aqui 
 '''

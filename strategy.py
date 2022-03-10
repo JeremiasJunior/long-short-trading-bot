@@ -38,13 +38,17 @@ sns.set()
 pd.options.display.float_format = '{:.1f}'.format
 code = token(2)
 
-#fourteenbis(start_date='2018.01.01', end_date='2020.12.31', d_train=7, d_test=1, param='profit', dataframe=5, p_size=300, sample_size=5, n_opt=45, lags=25, stop_n = [5,50], stop_r = [-30, -10], period = [5, 100], s_spread=[1.0, 6.0], l_spread = [-6.0, -1.0], tp_s=[-3.5, 3.5], tp_l=[-3.5, 3.5], tp_r=[80,200], csv_l='symbols_ibovf.csv')
+'''
+fourteenbis(start_date='2021.01.03', end_date='2021.06.01', optimizer= 'forest', benchmark='BOVA11', exchange='ibovespa',d_train=30, d_test=5, param='roiloss', dataframe=5, p_size=10000, sample_size=1, n_opt=25, lags=22, period = [10,100], s_spread=[0,5], l_spread=[-5,0], tp_s=[-1,0], tp_l=[0,1],stop_n=[25,50], c_min=[50,250], csv_l='symbols_ibovf.csv')
+
+'''
+
 
 class fourteenbis:
     
-    def get_days(start_date, end_date, d_train, d_test, benchmark):
+    def get_days(start_date, end_date, d_train, d_test):
 
-        ibov = mt5_singlehistoricaldata(benchmark, 16408, start_date, end_date)
+        ibov = mt5_singlehistoricaldata('IBOV', 16408, start_date, end_date, SERVER='tcp://192.168.100.106:10000')
         ibov_date = list(ibov['date'])
         ibov_date.reverse()
 
@@ -67,9 +71,6 @@ class fourteenbis:
 
     def cointpair_selection(hist, dataframe, lags):
 
-        co_list = []
-        
-
         co = h_coint(hist, dataframe, n_lags=lags)
         co = pd.DataFrame(co)
         co = co.sort_values(by=['pvalue'])
@@ -83,57 +84,18 @@ class fourteenbis:
             return new_co
 
         co_len = [i for i in range(len(co))]
-        
+
         for j in co_len:
 
             x,y = list(co['x'])[j], list(co['y'])[j]
-
-            if not((x in list(new_co['x'])) or (x in list(new_co['y'])) 
-                or (y in list(new_co['x'])) or (y in list(new_co['y']))):
-                    
-                new_co = new_co.append(co.iloc()[j])
-
+            
+            new_co = new_co.append(co.iloc()[j])
             new_co = new_co.reset_index(drop=True)
-    
-
-
-        return co
-
-    '''
-    def cointpair_selection(hist, dataframe, lags, df_testdata):
-
-        co = h_coint(hist, dataframe, n_lags=lags)
-        co = pd.DataFrame(co)
-        co = co.sort_values(by=['pvalue'])
-        co = co.reset_index(drop=True)
-
-        new_co = pd.DataFrame({'pvalue':pd.Series([]), 'stdx':pd.Series([]), 
-                                    'stdy':pd.Series([]), 'x':pd.Series([]), 'y':pd.Series([])})
-
-
-
-        if(len(co) == 0):
-            return new_co
-        
-        co_len = [i for i in range(len(co))]
-
-        for j in co_len:
-
-            x,y = list(co['x'])[j], list(co['y'])[j]
-
-            if not((x in list(new_co['x'])) or (x in list(new_co['y'])) or 
-                        (y in list(new_co['x'])) or (y in list(new_co['y']))):
-                
-                new_co = new_co.append(co.iloc()[j])
         
         new_co = new_co.reset_index(drop=True)
-        
-        print(new_co)
-        
-        
+
+
         return new_co
-        '''
-    
 
 
     def loop_work(sample,  
@@ -264,7 +226,7 @@ class fourteenbis:
         return loopdata_list, result_opttrain['parametros']
         
 
-        
+    
 
     def __new__(self, start_date, 
                         end_date,
@@ -284,10 +246,8 @@ class fourteenbis:
                                        c_min,
                                         optimizer,
                                         csv_l,
-                                          benchmark,
-                                           exchange,
                                             msg='',
-                                             server = 'tcp://192.168.0.28:10000'):
+                                             server = 'tcp://192.168.100.106:10000'):
 
         start = time.perf_counter()
 
@@ -300,7 +260,8 @@ class fourteenbis:
                 (c_min[0], c_min[1])]
 
         df_testdata = pd.DataFrame()
-        date_iteration, ibov_date, real_startdate, real_enddate = self.get_days(start_date, end_date, d_train, d_test, benchmark)
+        date_iteration, ibov_date, real_startdate, real_enddate = self.get_days(start_date, end_date, d_train, d_test)
+        print('test')
 
         df_loopdata = pd.DataFrame()
         #loop de execução do programa
@@ -381,7 +342,7 @@ class fourteenbis:
                 for f in concurrent.futures.as_completed(run):
                     
                     loopdata, parametros = f.result()
-                    
+                    print(loopdata)
                     df_loopdata = df_loopdata.append(loopdata, ignore_index=True)
                     partial_data = '{}.csv'.format(code)
                     df_loopdata.to_csv(partial_data)
