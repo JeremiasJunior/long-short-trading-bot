@@ -12,6 +12,7 @@ extern int MagicNumber = 123456;
 
 
 #include <Trade\Trade.mqh>
+#include <Trade\AccountInfo.mqh>
 CTrade trade;
 
 // CREATE ZeroMQ Context
@@ -100,10 +101,6 @@ ENUM_TIMEFRAMES TFMigrate(int tf)
     }
 }
 
-
-
-
-
 void InterpretZmqMessage(string& compArray[])
 {
     Print("ZMQ: Interpreting..");
@@ -125,8 +122,10 @@ void InterpretZmqMessage(string& compArray[])
         switch_action = 5;
     else if (compArray[0] == "LAST")
         switch_action = 6;
-    else if (compArray[0] == "OPENBOOK")
+    else if (compArray[0] == "PENDING")
         switch_action = 7;
+    else if (compArray[0] == "PROFIT")
+        switch_action = 8;
 
 
 
@@ -142,10 +141,26 @@ void InterpretZmqMessage(string& compArray[])
     ZmqMsg msg("[SERVER] Processing");
     Print("switch_actions :  " + switch_action);
 
+    //CAccountInfo accountinfo;
+    CPositionInfo data;
+      
+    string key;  
     string _order;
-
+    double profit_msg;
     switch(switch_action){
-
+    
+        case 8:
+            ret = "N/A";
+            
+            key = compArray[1];
+            ret = data.SelectByTicket(key);
+            ret = data.Profit();
+            Print("PROFIT : ", ret);
+            repSocket.send(ret, false);
+        
+        
+        break;
+         
         case 1:
             //  0      1     2     3       4        5
             //OPEN|TYPE|SYMBOL|STOPLOSS|STOPGAIN|VOLUME
